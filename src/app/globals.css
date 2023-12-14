@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-900 box-border;
+  }
+
+  .inputs {
+    @apply border  outline-none rounded py-1 px-2 text-slate-700 bg-slate-200;
+  }
+
+  .logged {
+    @apply text-center bg-red-500 hover:bg-red-600 transition font-semibold text-white  px-4 py-2 rounded-full;
+  }
+
+  .input-error {
+    @apply text-red-500 font-medium text-sm ml-1;
+  }
+
+  h5 {
+    @apply font-bold;
+  }
+}
