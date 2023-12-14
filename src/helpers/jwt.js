@@ -6,7 +6,7 @@ const create_jwt = ({ response, data }) => {
   cookies().set("token", token, {
     httpOnly: true,
     secure: true,
-    expires: new Date(Date.now() + 60 * 60 * 60 * 24),
+    expires: new Date(Date.now() + 1000 * 60 * 60 * 60 * 24),
     signed: true,
   });
   return response;

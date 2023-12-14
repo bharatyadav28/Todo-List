@@ -68,7 +68,7 @@ const AuthForm: React.FC<{
     <div className="grid mt-36 grid-cols-12 ">
       <form
         onSubmit={handleFormSubmit}
-        className="sm:col-start-6 sm:col-span-3 col-start-2 col-span-9 rounded-lg sm:ml-0 ml-6 p-5 bg-white "
+        className="sm:col-start-6 sm:col-span-3 col-start-1 col-span-12 rounded-lg sm:mx-0 mx-6 p-5 bg-white "
       >
         <h1 className="text-center font-bold text-2xl mt-2 mb-3">
           {typeForm === "signup" ? "Signup" : "Login"}
