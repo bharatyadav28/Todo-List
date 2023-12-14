@@ -12,7 +12,7 @@ import List from "./components/List";
 import { todoInterface } from "@/helpers/interfaces";
 import reteriveCurrentUser from "@/store/currentUserAction";
 import { removeUserData } from "@/store/currentUserSlice";
-import { useAppDispatch } from "@/hooks/use-appdispatch";
+import { useAppDispatch } from "@/hooks/use-appDispatch";
 
 const initialTodos: todoInterface[] = [];
 
