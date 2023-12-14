@@ -4,10 +4,8 @@ import { toast } from "react-toastify";
 
 import { getUserData, userState } from "./currentUserSlice";
 
-const reteriveCurrentUser = (): ((
-  dispatch: Dispatch<userState>
-) => Promise<void>) => {
-  return async (dispatch: Dispatch<userState>) => {
+const reteriveCurrentUser = () => {
+  return async (dispatch: Dispatch) => {
     const connectDB = async () => {
       const res = await fetch("/api/currentuser");
 
@@ -22,11 +20,11 @@ const reteriveCurrentUser = (): ((
 
     try {
       const user = await connectDB();
-      // dispatch(getUserData(user));
+      dispatch(getUserData(user));
 
-      dispatch(
-        getUserData({ id: "1", email: "example@example.com", name: "John" })
-      );
+      // dispatch(
+      //   getUserData({ id: "1", email: "example@example.com", name: "John" })
+      // );
     } catch (error) {
       // console.log(error);
     }

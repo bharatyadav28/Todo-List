@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { BsCardList as ListIcon } from "react-icons/bs";
 import Link from "next/link";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "@/store/index";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -12,12 +12,13 @@ import List from "./components/List";
 import { todoInterface } from "@/helpers/interfaces";
 import reteriveCurrentUser from "@/store/currentUserAction";
 import { removeUserData } from "@/store/currentUserSlice";
+import { useAppDispatch } from "@/hooks/use-appdispatch";
 
 const initialTodos: todoInterface[] = [];
 
 export default function Home() {
   const [todos, setTodos] = useState(initialTodos);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const userData = useSelector((state: RootState) => state.currentuser);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
