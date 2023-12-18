@@ -2,10 +2,9 @@
 import { useState, useEffect } from "react";
 import { BsCardList as ListIcon } from "react-icons/bs";
 import Link from "next/link";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/store/index";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 
 import AddNewTodo from "./components/AddNewTodo";
 import List from "./components/List";
@@ -13,60 +12,89 @@ import { todoInterface } from "@/helpers/interfaces";
 import reteriveCurrentUser from "@/store/currentUserAction";
 import { removeUserData } from "@/store/currentUserSlice";
 import { useAppDispatch } from "@/hooks/use-appDispatch";
-
-const initialTodos: todoInterface[] = [];
+import useCaching from "@/helpers/use-cache";
+import notification from "@/helpers/notifiy";
+import { replaceTodos, updateTodos } from "@/store/todoSlice";
 
 export default function Home() {
-  const [todos, setTodos] = useState(initialTodos);
-  const dispatch = useAppDispatch();
+  // const [todos, setTodos] = useState(initialTodos);
+  const appDispatch = useAppDispatch();
+  const dispatch = useDispatch();
   const userData = useSelector((state: RootState) => state.currentuser);
+  const { todos } = useSelector((state: RootState) => state.todos);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const isLoggedIn = userData?.id ? true : false;
 
-  const pendingTodos: todoInterface[] = todos.filter(
-    (todo) => todo.isCompleted === false
-  );
-  const completedTodos: todoInterface[] = todos.filter(
-    (todo) => todo.isCompleted === true
-  );
+  const {
+    allTodosQuery,
+    todoQueries,
+    mutation,
+    updateMutation,
+    deleteMutation,
+  } = useCaching();
 
   useEffect(() => {
-    dispatch(reteriveCurrentUser());
+    appDispatch(reteriveCurrentUser());
   }, []);
 
   useEffect(() => {
-    const localTodos = localStorage.getItem("todos");
-    const savedTodos = localTodos ? JSON.parse(localTodos) : [];
-    setTodos(savedTodos);
+    const intervalId = notification();
+
+    return () => clearTimeout(intervalId);
   }, []);
 
   useEffect(() => {
-    if (todos.length !== 0) {
+    if (!isLoggedIn) {
+      const localTodos = localStorage.getItem("todos");
+      const savedTodos = localTodos ? JSON.parse(localTodos) : [];
+      dispatch(replaceTodos(savedTodos));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn && todos.length !== 0) {
       localStorage.setItem("todos", JSON.stringify(todos));
     }
   }, [todos]);
 
   const addTodo = (newTodo: string) => {
-    const id: number = Math.floor(Math.random() * (10000 - 1) + 1);
-
-    setTodos([...todos, { id, text: newTodo, isCompleted: false }]);
+    const id = Math.floor(Math.random() * (10000 - 1) + 1);
+    const newTodoObj = { id, text: newTodo, isCompleted: false };
+    if (isLoggedIn) {
+      mutation.mutate(newTodoObj);
+    } else {
+      dispatch(
+        replaceTodos([...todos, { id, text: newTodo, isCompleted: false }])
+      );
+    }
   };
 
   const handleTodoCompletion = (id: number, status: boolean) => {
-    const newTodos: todoInterface[] = todos.map((todo) => {
-      if (todo.id === id) {
-        return { ...todo, isCompleted: status };
-      }
-
-      return todo;
+    let todo: todoInterface | undefined = todos.find((todo) => {
+      return todo.id === id;
     });
 
-    setTodos(newTodos);
+    if (todo) {
+      if (isLoggedIn) {
+        updateMutation.mutate({ ...todo, isCompleted: status });
+      } else {
+        dispatch(updateTodos({ ...todo, isCompleted: status }));
+      }
+    }
   };
 
   const handleTodoDeletion = (id: number) => {
-    const newTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(newTodos);
+    const toDeleteTodo: todoInterface | undefined = todos.find(
+      (todo) => todo.id === id
+    );
+    if (toDeleteTodo) {
+      if (isLoggedIn) {
+        deleteMutation.mutate(toDeleteTodo);
+      } else {
+        const newTodos = todos.filter((todo) => todo.id !== id);
+        dispatch(replaceTodos(newTodos));
+      }
+    }
   };
 
   const handleLogout = async () => {
@@ -86,15 +114,18 @@ export default function Home() {
       }
       toast("Logout successfull");
       dispatch(removeUserData());
-
-      // router.push("/");
     } catch (error: any) {
       toast(error?.message || "An error occured");
     }
     setIsLoading(false);
   };
 
-  const isLogged = userData.id ? true : false;
+  const pendingTodos: todoInterface[] = todos?.filter(
+    (todo) => todo.isCompleted === false
+  );
+  const completedTodos: todoInterface[] = todos?.filter(
+    (todo) => todo.isCompleted === true
+  );
 
   return (
     <div>
@@ -106,13 +137,13 @@ export default function Home() {
         ) : (
           ""
         )}
-        {!isLogged && (
+        {!isLoggedIn && (
           <Link href="/login" className="logged">
             Login
           </Link>
         )}
 
-        {isLogged && (
+        {isLoggedIn && (
           <button className="logged" onClick={handleLogout}>
             {!isLoading ? "Logout" : "Logging out.."}
           </button>
@@ -138,7 +169,8 @@ export default function Home() {
                 onTodoDeletion={handleTodoDeletion}
               />
             </div>
-            <div className="border-t-2 pt-2 mt-2">
+            <hr className="pt-2 mt-3 mr-5 mb-0 " />
+            <div className="pt-2  ">
               <List
                 todos={completedTodos}
                 onTodoCompletion={handleTodoCompletion}

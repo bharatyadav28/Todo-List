@@ -3,10 +3,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import currentUserReducer from "./currentUserSlice";
+import todoSliceReducer from "./todoSlice";
 
 const store = configureStore({
   reducer: {
     currentuser: currentUserReducer,
+    todos: todoSliceReducer,
   },
 });
 

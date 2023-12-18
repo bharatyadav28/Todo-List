@@ -22,14 +22,14 @@ const ListItem: React.FC<{
 
   return (
     <div className="py-2 grid grid-cols-12 max-w-full break-all font-medium ">
-      <div onClick={handleCompleteion} className="my-auto">
+      <div onClick={handleCompleteion} className="my-auto cursor-pointer mt-1">
         {todo.isCompleted ? (
           <FilledCheckIcon size={20} className="text-orange-500 " />
         ) : (
           <EmptyCheckIcon size={20} className="hover:text-orange-500" />
         )}
       </div>
-      <div className=" col-start-2 col-span-10 flex justify-between">
+      <div className=" col-start-2 col-span-10 flex justify-between ml-1">
         <div
           className={`text-slate-700 font-medium  ${
             todo.isCompleted ? "line-through" : ""
